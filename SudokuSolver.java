@@ -36,8 +36,10 @@ class SudokuSolver {
         // ,{0, 6, 0, 0, 0, 0, 2, 8, 0}
         // ,{0, 0, 0, 4, 1, 9, 0, 0, 5}
         // ,{0, 0, 0, 0, 8, 0, 0, 7, 9}};
-        
+        long start = System.currentTimeMillis();
         solveGrid(grid);
+        long end = System.currentTimeMillis();
+
         if (solutionCount == 0)
             System.out.print("No solution.");
         else if (solutionCount > 1)
@@ -45,6 +47,8 @@ class SudokuSolver {
         else {
             System.out.print("Solution found");
         }
+
+        System.out.println("Processing time: " + (end - start) + " ms");
     }
     
     public static boolean solveGrid(int[][] grid)
