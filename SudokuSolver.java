@@ -41,11 +41,11 @@ class SudokuSolver {
         long end = System.currentTimeMillis();
 
         if (solutionCount == 0)
-            System.out.print("No solution.");
+            System.out.println("No solution.");
         else if (solutionCount > 1)
-            System.out.print(solutionCount + " solutions found");
+            System.out.println(solutionCount + " solutions found");
         else {
-            System.out.print("Solution found");
+            System.out.println("Solution found");
         }
 
         System.out.println("Processing time: " + (end - start) + " ms");
