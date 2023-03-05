@@ -1,3 +1,4 @@
+
 class SolverThread extends Thread {
     int section;
     int[][] grid;
@@ -6,7 +7,7 @@ class SolverThread extends Thread {
     int attempts = 0;
     public void run()
     {
-        while(unsolved && attempts < 20)
+        while(unsolved && attempts < 100)
         {
            
             unsolved = false; //returns to true if any of this thread's given grid is zero
@@ -19,11 +20,17 @@ class SolverThread extends Thread {
                 // ROW
                 if(grid[section][i] != 0)
                     for(int j = 0; j < 9; j++)
+                    {
                         eliminatedNumbers[section][j][grid[section][i]] = true;
+                        eliminatedNumbers[section][i][j + 1] = true;
+                    }
                 // COLUMN
                 if(grid[i][section] != 0)
                     for(int j = 0; j < 9; j++)
+                    {
                         eliminatedNumbers[j][section][grid[i][section]] = true;
+                        eliminatedNumbers[i][section][j + 1] = true;
+                    }
                 // BOX
                 int boxrow = (i % 3) + (section % 3) * 3;
                 int boxcol = (i / 3) + (section / 3) * 3;
@@ -33,6 +40,7 @@ class SolverThread extends Thread {
                         int jboxrow = (j % 3) + (section % 3) * 3;
                         int jboxcol = (j / 3) + (section / 3) * 3;
                         eliminatedNumbers[jboxrow][jboxcol][grid[boxrow][boxcol]] = true;
+                        eliminatedNumbers[boxrow][boxcol][j + 1] = true;
                     }
             }
             
@@ -95,24 +103,103 @@ class SolverThread extends Thread {
                         grid[boxrow][boxcol] = currentValue;
                 }
             }
+
+            //Find grid spaces where all other spaces are invalid
+            for(int i = 0; i < 9; i++)
+            {
+                // ROW
+                if(grid[section][i] == 0)
+                {
+                    for(int j = 1; j < 10; j++)
+                    {
+                        if(!eliminatedNumbers[section][i][j])
+                        {
+                            boolean alone = true; //will become false if other spaces share a possible value
+                            for(int k = 0; k < 9; k++)
+                            {
+                                if(!eliminatedNumbers[section][k][j] && i != k)
+                                    alone = false;
+                            }
+                            if(alone)
+                                grid[section][i] = j;
+                        }
+                    }
+                }
+                // COLUMN
+                if(grid[i][section] == 0)
+                {
+                    for(int j = 1; j < 10; j++)
+                    {
+                        if(!eliminatedNumbers[i][section][j])
+                        {
+                            boolean alone = true; //will become false if other spaces share a possible value
+                            for(int k = 0; k < 9; k++)
+                            {
+                                if(!eliminatedNumbers[k][section][j] && i != k)
+                                    alone = false;
+                            }
+                            if(alone)
+                                grid[i][section] = j;
+                        }
+                    }
+                }
+                // BOX
+                int boxrow = (i % 3) + (section % 3) * 3;
+                int boxcol = (i / 3) + (section / 3) * 3;
+                if(grid[boxrow][boxcol] == 0)
+                {
+                    for(int j = 1; j < 10; j++)
+                    {
+                        if(!eliminatedNumbers[boxrow][boxcol][j])
+                        {
+                            boolean alone = true; //will become false if other spaces share a possible value
+                            for(int k = 0; k < 9; k++)
+                            {
+                                int kboxrow = (k % 3) + (section % 3) * 3;
+                                int kboxcol = (k / 3) + (section / 3) * 3;
+                                if(!eliminatedNumbers[kboxrow][kboxcol][j] && i != k)
+                                    alone = false;
+                            }
+                            if(alone)
+                                grid[boxrow][boxcol] = j;
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
 class SudokuSolverMulti {
     public static int solutionCount = 0;
+    //Text color stuff
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLUE = "\u001B[44m";
+
     public static void main(String[] args) {
         //One Solution
+        // int[][] grid = 
+        // {{5, 3, 0, 0, 7, 0, 0, 0, 0}
+        // ,{6, 0, 0, 1, 9, 5, 0, 0, 0}
+        // ,{0, 9, 8, 0, 0, 0, 0, 6, 0}
+        // ,{8, 0, 0, 0, 6, 0, 0, 0, 3}
+        // ,{4, 0, 0, 8, 0, 3, 0, 0, 1}
+        // ,{7, 0, 0, 0, 2, 0, 0, 0, 6}
+        // ,{0, 6, 0, 0, 0, 0, 2, 8, 0}
+        // ,{0, 0, 0, 4, 1, 9, 0, 0, 5}
+        // ,{0, 0, 0, 0, 8, 0, 0, 7, 9}};
+
+        //One Solution
         int[][] grid = 
-        {{5, 3, 0, 0, 7, 0, 0, 0, 0}
-        ,{6, 0, 0, 1, 9, 5, 0, 0, 0}
-        ,{0, 9, 8, 0, 0, 0, 0, 6, 0}
-        ,{8, 0, 0, 0, 6, 0, 0, 0, 3}
-        ,{4, 0, 0, 8, 0, 3, 0, 0, 1}
-        ,{7, 0, 0, 0, 2, 0, 0, 0, 6}
-        ,{0, 6, 0, 0, 0, 0, 2, 8, 0}
-        ,{0, 0, 0, 4, 1, 9, 0, 0, 5}
-        ,{0, 0, 0, 0, 8, 0, 0, 7, 9}};
+        {{0, 0, 6, 3, 0, 7, 0, 0, 0}
+        ,{0, 0, 4, 0, 0, 0, 0, 0, 5}
+        ,{1, 0, 0, 0, 0, 6, 0, 8, 2}
+        ,{2, 0, 5, 0, 3, 0, 1, 0, 6}
+        ,{0, 0, 0, 2, 0, 0, 3, 0, 0}
+        ,{9, 0, 0, 0, 7, 0, 0, 0, 4}
+        ,{0, 5, 0, 0, 0, 0, 0, 0, 0}
+        ,{0, 1, 0, 0, 0, 0, 0, 0, 0}
+        ,{0, 0, 8, 1, 0, 9, 0, 4, 0}};
 
         //Two Solutions
         // int[][] grid = 
@@ -175,6 +262,7 @@ class SudokuSolverMulti {
             }
         }
         printGrid(grid);
+        printEliminatedGrid(eliminatedNumbers, grid, 0);
     }
     
     public static void printGrid(int[][] grid) {
@@ -192,6 +280,32 @@ class SudokuSolverMulti {
                 System.out.print("\n-----------------------");
             System.out.println();
 
+        }
+        System.out.println();
+        System.out.println();
+    }
+    public static void printEliminatedGrid(boolean[][][] grid, int[][]solvedGrid, int boxNum) {
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 9; k++) {
+                    for (int l = 0; l < 3; l++) {
+                        if(!grid[i][k][j * 3 + l + 1])
+                            System.out.print((j * 3 + l + 1) + " ");
+                        else if(solvedGrid[i][k] != 0)
+                        {
+                            if(j * 3 + l + 1 == 5)
+                                System.out.print(ANSI_BLUE + solvedGrid[i][k] + " " + ANSI_RESET);
+                            else
+                            System.out.print(ANSI_BLUE + "  " + ANSI_RESET);
+                        }
+                        else
+                            System.out.print("  ");
+                    }
+                    System.out.print("| ");
+                }
+                System.out.println();
+            }
+            System.out.println("---------------------------------------------------------------------");
         }
         System.out.println();
         System.out.println();
