@@ -166,6 +166,85 @@ class SolverThread extends Thread {
                     }
                 }
             }
+
+            boolean first = true;
+            boolean second = true;
+            boolean third = true;
+            int boxrow = 0;
+            int boxcol = 0;
+            //Find values in boxes that can only exist in specific rows or columns
+            for(int i = 1; i < 10; i++)
+            {
+                //become false if value can exist in that box
+                first = true;
+                second = true;
+                third = true;
+                boxrow = 0;
+                boxcol = 0;
+                
+                // ROW
+                for(int j = 0; j < 9; j++)
+                {
+                    if(!eliminatedNumbers[section][j][i])
+                    {
+                        if(j < 3)
+                            first = false;
+                        else if(j < 6)
+                            second = false;
+                        else
+                            third = false;
+                    }
+                }
+                if(first && second && !third) //must exist in third box
+                    boxcol = 6;
+                else if(first && !second && third)//must exist in second box
+                    boxcol = 3; 
+                else if (!first && second && third )//must exist in first box
+                    boxcol = 0;
+                else //does not necessarily exist in a specific box
+                    continue;
+                boxrow = (section / 3) * 3;
+                for(int j = 0; j < 3; j++)
+                    for(int k = 0; k < 3; k++)
+                        if(j + boxrow != section)
+                            eliminatedNumbers[j + boxrow][k + boxcol][i] = true;
+            }
+            for(int i = 1; i < 10; i++)
+            {
+                //become false if value can exist in that box
+                first = true;
+                second = true;
+                third = true;
+                boxrow = 0;
+                boxcol = 0;
+
+                // COLUMN
+                for(int j = 0; j < 9; j++)
+                {
+                    if(!eliminatedNumbers[j][section][i])
+                    {
+                        if(j < 3)
+                            first = false;
+                        else if(j < 6)
+                            second = false;
+                        else
+                            third = false;
+                    }
+                }
+                if(first && second && !third) //must exist in third box
+                    boxrow = 6;
+                else if(first && !second && third)//must exist in second box
+                    boxrow = 3; 
+                else if (!first && second && third )//must exist in first box
+                    boxrow = 0;
+                else //does not necessarily exist in a specific box
+                    continue;
+                boxcol = (section / 3) * 3;
+                for(int j = 0; j < 3; j++)
+                    for(int k = 0; k < 3; k++)
+                        if(k + boxcol != section)
+                            eliminatedNumbers[j + boxrow][k + boxcol][i] = true;
+            }
         }
     }
 }
@@ -224,6 +303,18 @@ class SudokuSolverMulti {
         // ,{0, 6, 0, 0, 0, 0, 2, 8, 0}
         // ,{0, 0, 0, 4, 1, 9, 0, 0, 5}
         // ,{0, 0, 0, 0, 8, 0, 0, 7, 9}};
+        
+        //"Unsolvable" grid
+        // int[][] grid = 
+        // {{0, 9, 0, 0, 0, 3, 7, 0, 0}
+        // ,{0, 0, 0, 0, 5, 0, 0, 0, 4}
+        // ,{0, 0, 1, 2, 0, 0, 0, 6, 0}
+        // ,{0, 4, 5, 0, 6, 0, 0, 0, 0}
+        // ,{0, 3, 0, 0, 0, 4, 0, 0, 0}
+        // ,{2, 0, 0, 7, 0, 0, 0, 0, 0}
+        // ,{0, 0, 0, 0, 0, 9, 3, 0, 0}
+        // ,{0, 0, 6, 0, 0, 0, 0, 1, 0}
+        // ,{7, 0, 0, 0, 8, 0, 0, 0, 2}};
         
         long start = System.currentTimeMillis();
         solveGrid(grid);
