@@ -58,14 +58,53 @@ Each sudoku puzzle typically starts off with at least 17 clues to be guaranteed 
 {\Large\textbf{Methodology}}
 \end{center}
 
-\vspace{1\baselineskip}
-To better understand how to systematically solve a sudoku, we first created a single thread implementation of solving sudoku which was a brute force method where it checks all possible values for each cell and iterates until the grid has been solved.
 
-\vspace{1\baselineskip}
-The next step was to come up with a multithreading approach for the problem. At first we thought to have two threads, one for the column and one for the row, then both would work together to find all possible options for each cell to solve the sudoku. This method does not properly use multithreading concepts to their full potential as it takes the single thread approach and assigns threads to specific assignments. We decided that we did not want our project to move in this direction so we halted the implementation of this approach.
+To better understand how to systematically solve a sudoku, we first created a single thread implementation of solving sudoku
+which was a brute force method where it checks all possible values for each cell and iterates until the grid has been solved.
+\\*
 
+The next step was to come up with a multithreading approach for the problem. At first we thought to have two threads, one for the
+column and one for the row, then both would work together to find all possible options for each cell to solve the sudoku.
+This method does not properly use multithreading concepts to their full potential as it takes the single thread approach and assigns
+threads to specific assignments. We decided that we did not want our project to move in this direction so we halted the
+implementation of this approach.
+\\*
+
+After some discussions on what multithreading approaches we should take, more research was conducted.
+To properly solve a grid we dived into understanding how average humans go about solving the sudoku, the pencil and paper algorithm.
+A human uses the clues provided by the given numbers in the grid and uses logic to determine which values must
+exist in particular cells. One of the most common strategies is to use the process of elimination, finding all the values that
+are impossible in a cell. If there is only one value that remains possible, we know that it is the correct value.
+\\*
+
+The best way to combine common sudoku-solving strategies with multithreading was to first split the grid into pieces.
+Assume we are working with a classic 9x9 sudoku grid. Each thread is to be given a row, column, and box (3x3 cell group).
+This will split the grid evenly across nine separate threads. Each thread shares access to a three-dimensional matrix of boolean values
+(9x9x9). The first two dimensions refer to a specific cell’s location in the grid, and the last dimension is used to track
+which of the possible numbers for that cell have been eliminated.
+\\*
+
+This allows threads to share information on the values deemed impossible for each cell.
+If all possible values in a cell are eliminated except for one, then the thread will mark it as the correct value for that cell.
+\\*
+
+There are four strategies that the program uses to determine the solution:
 \vspace{1\baselineskip}
-After some discussions on what multithreading approaches we should take, more research was conducted. To properly solve a grid we dived into understanding how average humans go about solving the sudoku, the pencil and paper algorithm. A human tends to store all possible options for each cell then go cell by cell and decide which values are valid and settle on one value per cell. We attempted to do the same by  first calculating all possible values for each cell then using nine threads, one for each 3x3 grid and solving the grid. 
+\begin{itemize}
+    \item{If a number has been used in a row, column, or box, 
+    then that number should be marked as impossible for all other cells in that row, column, or box.}
+
+    \item{If a cell has all numbers deemed impossible except for one, 
+    then that last number is the correct value for the cell.}
+
+    \item{If a cell is the only cell in a row, column, or box where a number is possible, 
+    then that number is the correct number for the cell.}
+
+    \item{If there exists some number that must exist in both a specific row and box or a specific column and box, 
+    then that number should be marked as impossible for any cells in the box outside the specific row or column.}
+\end{itemize}
+Using these four strategies allows the puzzle to be solved in a step-by-step method similar to how a person might solve it.
+
 
 \begin{center}
 {\Large\textbf{References}}
