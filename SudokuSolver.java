@@ -8,24 +8,24 @@ import java.util.Set;
 class SudokuSolver {
     public static int solutionCount = 0;
 
-    // Stores the puzzle and the row and column of the current position
-    public static HashMap<String, ArrayList<Integer>> puzzleStates;
+    // Stores the puzzle and the row and column coordinates of the current position
+    public static HashMap<String, ArrayList<Integer>> puzzleStates = new HashMap<String, ArrayList<Integer>>();
 
     // Stores all the solutions hashed
-    public static HashSet<String> solutionHashes;
+    public static HashSet<String> solutionHashes = new HashSet<String>();
 
     public static void main(String[] args) {
         //One Solution
-        int[][] grid = 
-        {{5, 3, 0, 0, 7, 0, 0, 0, 0}
-        ,{6, 0, 0, 1, 9, 5, 0, 0, 0}
-        ,{0, 9, 8, 0, 0, 0, 0, 6, 0}
-        ,{8, 0, 0, 0, 6, 0, 0, 0, 3}
-        ,{4, 0, 0, 8, 0, 3, 0, 0, 1}
-        ,{7, 0, 0, 0, 2, 0, 0, 0, 6}
-        ,{0, 6, 0, 0, 0, 0, 2, 8, 0}
-        ,{0, 0, 0, 4, 1, 9, 0, 0, 5}
-        ,{0, 0, 0, 0, 8, 0, 0, 7, 9}};
+        // int[][] grid = 
+        // {{5, 3, 0, 0, 7, 0, 0, 0, 0}
+        // ,{6, 0, 0, 1, 9, 5, 0, 0, 0}
+        // ,{0, 9, 8, 0, 0, 0, 0, 6, 0}
+        // ,{8, 0, 0, 0, 6, 0, 0, 0, 3}
+        // ,{4, 0, 0, 8, 0, 3, 0, 0, 1}
+        // ,{7, 0, 0, 0, 2, 0, 0, 0, 6}
+        // ,{0, 6, 0, 0, 0, 0, 2, 8, 0}
+        // ,{0, 0, 0, 4, 1, 9, 0, 0, 5}
+        // ,{0, 0, 0, 0, 8, 0, 0, 7, 9}};
 
         //Two Solutions
         // int[][] grid = 
@@ -63,10 +63,6 @@ class SudokuSolver {
         // ,{0, 0, 6, 0, 0, 0, 0, 1, 0}
         // ,{7, 0, 0, 0, 8, 0, 0, 0, 2}};
 
-        // Initializations
-        solutionHashes = new HashSet<String>();
-        puzzleStates = new HashMap<String, ArrayList<Integer>>();
-
         // Create hash and corresponding position for the current grid
         String startGrid = createHash(grid);
         ArrayList<Integer> startPosition = new ArrayList<>();
@@ -86,6 +82,11 @@ class SudokuSolver {
             System.out.println(solutionHashes.size() + " solutions found");
         else {
             System.out.println("Solution found");
+        }
+
+        for (String setElement : solutionHashes) {
+            System.out.println(setElement);
+            printGrid(unHash(setElement));
         }
 
         System.out.println("Processing time: " + (end - start) + " ms");
@@ -112,7 +113,7 @@ class SudokuSolver {
 
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
-                newGrid[i][j] = hash.charAt(index);
+                newGrid[i][j] = Character.getNumericValue(hash.charAt(index));
                 index++;
             }
         }
@@ -120,24 +121,50 @@ class SudokuSolver {
         return newGrid;
     }
 
-    // Gets the next logical step in any given puzzle in the form of a hash
+    // Method that gets the next 9 possible values in current position 
+    //      and increments the current position (moving us rightward then downward)
     public static ArrayList<String> getNext(String currentPuzzleHash) {
         int[][] grid = unHash(currentPuzzleHash);
-        ArrayList<Integer> currentPuzzlePosition = puzzleStates.get(currentPuzzleHash);
+        ArrayList<Integer> currentPuzzlePositionOriginal = puzzleStates.get(currentPuzzleHash);
+        ArrayList<Integer> currentPuzzlePosition = new ArrayList<Integer>();
+        currentPuzzlePosition.add(currentPuzzlePositionOriginal.get(0));
+        currentPuzzlePosition.add(currentPuzzlePositionOriginal.get(1));
         ArrayList<String> ret = new ArrayList<String>();
         
-        if (currentPuzzlePosition.get(0) >= 8 && currentPuzzlePosition.get(1) >= 8) {
-            // First, check if the grid is finished, add nothing to the arraylist that is returned
-            // Instead, add the hashed grid to the solutionHashes hashset
-            solutionHashes.add(currentPuzzleHash);
-            return ret;
-            
-        } else if (grid[currentPuzzlePosition.get(0)][currentPuzzlePosition.get(1)] != 0) {
+        // Meaning that we can try all valid numbers on this position and increment its coordinates
+        if (grid[currentPuzzlePosition.get(0)][currentPuzzlePosition.get(1)] == 0) {
+            int row = currentPuzzlePosition.get(0);
+            int col = currentPuzzlePosition.get(1);
+
+            // Increment next position so we can easily memo the next states'
+            if (currentPuzzlePosition.get(1) >= 8) {
+                // If at the end of the column, start a new row
+                currentPuzzlePosition.set(0, currentPuzzlePosition.get(0)+1);
+                currentPuzzlePosition.set(1, 0);
+
+            } else {
+                // Increment the column only since its not at the end yet
+                currentPuzzlePosition.set(1, currentPuzzlePosition.get(1)+1);
+            }
+
+            // Iterates through all 9 possible values at this current position
+            for (int i = 1; i <= 9; i++) {
+                if (isValid(grid, row, col, i)) {
+                    // If valid, add each state's hash to the arraylist that is returned and store the position
+                    grid[row][col] = i;
+                    String tempHash = createHash(grid);
+                    puzzleStates.put(tempHash, currentPuzzlePosition);
+                    ret.add(tempHash);
+                }
+            }
+
+        } else {
             // If the current position is already filled, increment the position to the next col (or row if applicable)
             if (currentPuzzlePosition.get(1) >= 8) {
                 // If at the end of the column, start a new row
                 currentPuzzlePosition.set(0, currentPuzzlePosition.get(0)+1);
                 currentPuzzlePosition.set(1, 0);
+
             } else {
                 // Increment the column only since its not at the end yet
                 currentPuzzlePosition.set(1, currentPuzzlePosition.get(1)+1);
@@ -147,42 +174,48 @@ class SudokuSolver {
 
             // Set the new position
             puzzleStates.put(currentPuzzleHash, currentPuzzlePosition);
-
-        } else {
-            int row = currentPuzzlePosition.get(0);
-            int col = currentPuzzlePosition.get(1);
-            // Iterates through all 9 possible values at this current position
-            for (int i = 1; i <= 9; i++) {
-                if (isValid(grid, row, col, i)) {
-                    // If valid, add each state's hash to the arraylist that is returned and store the position
-                    grid[row][col] = i;
-                    String tempHash = createHash(grid);
-                    ret.add(tempHash);
-                }
-            }
         }
 
         return ret;
     }
 
-    // Solves with an iterative/DP approach
+    // Solves with an iterative/DP approach for brute force
     public static void solve(String startGridHash) {
         LinkedList<String> queue = new LinkedList<>();
         queue.offer(startGridHash);
 
         while (queue.size() != 0) {
             String currentPuzzleHash = queue.poll();
-
-            // MAKE A getNext(String hash) method that gets the next 9 possible values in current position
-            // Then it will increment the current position + 1 (moving us rightward then downward)
             ArrayList<String> adjacentPuzzles = getNext(currentPuzzleHash);
 
             for (int i = 0; i < adjacentPuzzles.size(); i++) {
                 String currentAdjacentPuzzleHash = adjacentPuzzles.get(i);
-                // Add it to the queue for further breath first searches
-                queue.offer(currentAdjacentPuzzleHash);
+    
+                // Check if the puzzle hasn't been completed yet
+                if (puzzleStates.get(currentAdjacentPuzzleHash).get(0) <= 8) {
+                    // Add it to the queue for further breath first searches if not completed
+                    queue.offer(currentAdjacentPuzzleHash);
+
+                } else {
+                    // If it has been completed, check if there are no 0s
+                    if (isComplete(currentAdjacentPuzzleHash)) {
+                        solutionHashes.add(currentPuzzleHash);
+                        solutionCount++;
+                    }
+                }
             }
         }
+    }
+
+    // Verifies that a puzzle has been completed (no empty or 0 spots)
+    public static boolean isComplete(String hash) {
+        for (int i = 0; i < hash.length(); i++) {
+            if (hash.charAt(i) == '0') {
+                return false;
+            }
+        }
+
+        return true;
     }
     
     // Verifies that a given number is valid at the current position in a puzzle at its current state
