@@ -11,9 +11,6 @@ class SudokuSolver {
     // Stores the puzzle and the row and column of the current position
     public static HashMap<String, ArrayList<Integer>> puzzleStates;
 
-    // Store the non-visited puzzle states for temporary use
-    public static HashMap<String, ArrayList<Integer>> nonVisitedPuzzleStates;
-
     // Stores all the solutions hashed
     public static HashSet<String> solutionHashes;
 
@@ -69,7 +66,6 @@ class SudokuSolver {
         // Initializations
         solutionHashes = new HashSet<String>();
         puzzleStates = new HashMap<String, ArrayList<Integer>>();
-        nonVisitedPuzzleStates = new HashMap<String, ArrayList<Integer>>();
 
         // Create hash and corresponding position for the current grid
         String startGrid = createHash(grid);
@@ -162,7 +158,6 @@ class SudokuSolver {
                     grid[row][col] = i;
                     String tempHash = createHash(grid);
                     ret.add(tempHash);
-                    nonVisitedPuzzleStates.put(tempHash, currentPuzzlePosition);
                 }
             }
         }
