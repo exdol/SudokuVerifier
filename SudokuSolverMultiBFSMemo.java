@@ -18,6 +18,8 @@ class SudokuSolver extends Thread {
     // Stores all the solutions hashed
     public static HashSet<String> solutionHashes = new HashSet<String>();
 
+    public Queue<String> queue;
+
     public static void main(String[] args) {
         //One Solution
         int[][] grid = 
@@ -183,10 +185,8 @@ class SudokuSolver extends Thread {
         return ret;
     }
 
-    public Queue<String> queue;
-
     public SudokuSolver(Queue<String> queue) {
-        this.queue = new LinkedBlockingQueue<>(queue);
+        this.queue = queue;
     }
 
     public void run() {
@@ -221,7 +221,7 @@ class SudokuSolver extends Thread {
 
     // Solves with an iterative/DP approach for brute force
     public static void solve(String startGridHash) {
-        LinkedList<String> queue = new LinkedList<>();
+        Queue<String> queue = new LinkedBlockingQueue<>();
         queue.offer(startGridHash);
         Boolean finish = Boolean.FALSE;
 
