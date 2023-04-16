@@ -5,7 +5,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-class SudokuSolver {
+// Threaded BFS DP solution
+
+class SudokuSolver extends Thread {
     public static int solutionCount = 0;
 
     // Stores the puzzle and the row and column coordinates of the current position
@@ -51,7 +53,7 @@ class SudokuSolver {
         // ,{0, 0, 0, 4, 1, 9, 0, 0, 5}
         // ,{0, 0, 0, 0, 8, 0, 0, 7, 9}};
 
-        //"Unsolvable" grid
+        //"Unsolvable by humans"  grid
         // int[][] grid = 
         // {{0, 9, 0, 0, 0, 3, 7, 0, 0}
         // ,{0, 0, 0, 0, 5, 0, 0, 0, 4}
@@ -179,30 +181,59 @@ class SudokuSolver {
         return ret;
     }
 
+    public LinkedList<String> queue;
+
+    public SudokuSolver(LinkedList<String> queue) {
+        this.queue = new LinkedList<>(queue);
+    }
+
+    public void run() {
+        while (queue.size() != 0) {
+            // Reminder: do a check for if queue is not empty
+            try {
+                String currentPuzzleHash = queue.poll();
+                ArrayList<String> adjacentPuzzles = getNext(currentPuzzleHash);
+
+                for (int i = 0; i < adjacentPuzzles.size(); i++) {
+                    String currentAdjacentPuzzleHash = adjacentPuzzles.get(i);
+
+                    // Check if the puzzle hasn't been completed yet
+                    if (puzzleStates.get(currentAdjacentPuzzleHash).get(0) <= 8) {
+                        // Add it to the queue for further breath first searches if not completed
+                        queue.offer(currentAdjacentPuzzleHash);
+
+                    } else {
+                        // If it has been completed, check if there are no 0s
+                        if (isComplete(currentAdjacentPuzzleHash)) {
+                            solutionHashes.add(currentPuzzleHash);
+                            solutionCount++;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+
+            }
+            
+        }
+    }
+
     // Solves with an iterative/DP approach for brute force
     public static void solve(String startGridHash) {
         LinkedList<String> queue = new LinkedList<>();
         queue.offer(startGridHash);
+        Boolean finish = Boolean.FALSE;
 
-        while (queue.size() != 0) {
-            String currentPuzzleHash = queue.poll();
-            ArrayList<String> adjacentPuzzles = getNext(currentPuzzleHash);
+        Thread[] threads = new SudokuSolver[10];
+        for (int i = 0; i < 10; i++) {
+            threads[i] = new SudokuSolver(queue);
+            threads[i].start();
+        }
 
-            for (int i = 0; i < adjacentPuzzles.size(); i++) {
-                String currentAdjacentPuzzleHash = adjacentPuzzles.get(i);
-    
-                // Check if the puzzle hasn't been completed yet
-                if (puzzleStates.get(currentAdjacentPuzzleHash).get(0) <= 8) {
-                    // Add it to the queue for further breath first searches if not completed
-                    queue.offer(currentAdjacentPuzzleHash);
-
-                } else {
-                    // If it has been completed, check if there are no 0s
-                    if (isComplete(currentAdjacentPuzzleHash)) {
-                        solutionHashes.add(currentPuzzleHash);
-                        solutionCount++;
-                    }
-                }
+        for (int i = 0; i < 10; i++) {
+            try {
+                threads[i].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
