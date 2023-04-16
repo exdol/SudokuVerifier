@@ -185,7 +185,7 @@ class SudokuSolverMultiBFSMemo extends Thread {
         return ret;
     }
 
-    public SudokuSolver(Queue<String> queue) {
+    public SudokuSolverMultiBFSMemo(Queue<String> queue) {
         this.queue = queue;
     }
 
@@ -225,9 +225,9 @@ class SudokuSolverMultiBFSMemo extends Thread {
         queue.offer(startGridHash);
         Boolean finish = Boolean.FALSE;
 
-        Thread[] threads = new SudokuSolver[10];
+        Thread[] threads = new SudokuSolverMultiBFSMemo[10];
         for (int i = 0; i < 10; i++) {
-            threads[i] = new SudokuSolver(queue);
+            threads[i] = new SudokuSolverMultiBFSMemo(queue);
             threads[i].start();
         }
 
