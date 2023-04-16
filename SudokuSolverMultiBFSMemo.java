@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-// Threaded BFS DP solution
+// Threaded BFS solution
 
 class SudokuSolver extends Thread {
     public static int solutionCount = 0;
