@@ -9,7 +9,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 // Threaded BFS solution
 
-class SudokuSolver extends Thread {
+class SudokuSolverMultiBFSMemo extends Thread {
     public static int solutionCount = 0;
 
     // Stores the puzzle and the row and column coordinates of the current position
