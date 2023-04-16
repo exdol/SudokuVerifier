@@ -3,7 +3,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 
 // Threaded BFS solution
 
@@ -181,10 +183,10 @@ class SudokuSolver extends Thread {
         return ret;
     }
 
-    public LinkedList<String> queue;
+    public Queue<String> queue;
 
-    public SudokuSolver(LinkedList<String> queue) {
-        this.queue = new LinkedList<>(queue);
+    public SudokuSolver(Queue<String> queue) {
+        this.queue = new LinkedBlockingQueue<>(queue);
     }
 
     public void run() {
