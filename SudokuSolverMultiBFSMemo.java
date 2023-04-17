@@ -3,11 +3,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 
 // Threaded BFS solution
 
-class SudokuSolver extends Thread {
+class SudokuSolverMultiBFSMemo extends Thread {
     public static int solutionCount = 0;
 
     // Stores the puzzle and the row and column coordinates of the current position
@@ -15,6 +17,8 @@ class SudokuSolver extends Thread {
 
     // Stores all the solutions hashed
     public static HashSet<String> solutionHashes = new HashSet<String>();
+
+    public Queue<String> queue;
 
     public static void main(String[] args) {
         //One Solution
@@ -181,10 +185,8 @@ class SudokuSolver extends Thread {
         return ret;
     }
 
-    public LinkedList<String> queue;
-
-    public SudokuSolver(LinkedList<String> queue) {
-        this.queue = new LinkedList<>(queue);
+    public SudokuSolverMultiBFSMemo(Queue<String> queue) {
+        this.queue = queue;
     }
 
     public void run() {
@@ -219,13 +221,13 @@ class SudokuSolver extends Thread {
 
     // Solves with an iterative/DP approach for brute force
     public static void solve(String startGridHash) {
-        LinkedList<String> queue = new LinkedList<>();
+        Queue<String> queue = new LinkedBlockingQueue<>();
         queue.offer(startGridHash);
         Boolean finish = Boolean.FALSE;
 
-        Thread[] threads = new SudokuSolver[10];
+        Thread[] threads = new SudokuSolverMultiBFSMemo[10];
         for (int i = 0; i < 10; i++) {
-            threads[i] = new SudokuSolver(queue);
+            threads[i] = new SudokuSolverMultiBFSMemo(queue);
             threads[i].start();
         }
 

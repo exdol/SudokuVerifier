@@ -7,7 +7,7 @@ import java.util.Set;
 
 // Single BFS solution
 
-class SudokuSolver extends Thread {
+class SudokuSolverSingleBFSMemo extends Thread {
     public static int solutionCount = 0;
 
     // Stores the puzzle and the row and column coordinates of the current position
