@@ -12,7 +12,7 @@ class SolverThread extends Thread {
            
             unsolved = false; //returns to true if any of this thread's given grid is zero
             attempts++;
-            System.out.println("Thread " + this.threadId() + ", attempt " + attempts); //if removing this, make sure to add sleep() or threads will work too fast
+            System.out.println("Thread " + this.getId() + ", attempt " + attempts); //if removing this, make sure to add sleep() or threads will work too fast
             
             //Eliminate possible values
             for(int i = 0; i < 9; i++)
